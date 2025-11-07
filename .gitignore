@@ -13,3 +13,4 @@ node_modules/
 # その他
 *.log
 .DS_Store
+backend/backend_env

@@ -7,9 +7,9 @@ class Base(DeclarativeBase):
     pass
 
 
-class Customers(Base):
+class Customers(Base): # Mapped=行, column=列
     __tablename__ = 'customers'
-    customer_id: Mapped[str] = mapped_column(primary_key=True)
+    customer_id: Mapped[str] = mapped_column(primary_key=True, nullable=False) #生SQLではないので、Notnullは使えない！
     customer_name: Mapped[str] = mapped_column()
     age: Mapped[int] = mapped_column()
     gender: Mapped[str] = mapped_column()

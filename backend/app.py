@@ -3,10 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import requests
 import json
-from db_control import crud, mymodels
+from db_control import crud, mymodels #db_controlディレクトリ内のcrud.pyとmymodells.pyをimportしている
 
-
-class Customer(BaseModel):
+# Pydanticモデル定義（APIで受け取るJsonデータの型指定）
+class Customer(BaseModel): # mymodelsから持ってきている
     customer_id: str
     customer_name: str
     age: int
@@ -18,10 +18,10 @@ app = FastAPI()
 # CORSミドルウェアの設定
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"], # すべてのオリジンを許可している
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"], # GET, POST, PUT, DELETE　全許可
+    allow_headers=["*"], 
 )
 
 
@@ -31,14 +31,14 @@ def index():
 
 
 @app.post("/customers")
-def create_customer(customer: Customer):
+def create_customer(customer: Customer): #顧客を追加
     values = customer.dict()
-    tmp = crud.myinsert(mymodels.Customers, values)
-    result = crud.myselect(mymodels.Customers, values.get("customer_id"))
+    tmp = crud.myinsert(mymodels.Customers, values) # 追加処理
+    result = crud.myselect(mymodels.Customers, values.get("customer_id")) # 登録内容を再取得
 
     if result:
         result_obj = json.loads(result)
-        return result_obj if result_obj else None
+        return result_obj if result_obj else None # もしなければNoneを返す
     return None
 
 
@@ -46,7 +46,7 @@ def create_customer(customer: Customer):
 def read_one_customer(customer_id: str = Query(...)):
     result = crud.myselect(mymodels.Customers, customer_id)
     if not result:
-        raise HTTPException(status_code=404, detail="Customer not found")
+        raise HTTPException(status_code=404, detail="Customer not found") #エラーハンドリング
     result_obj = json.loads(result)
     return result_obj[0] if result_obj else None
 
@@ -65,8 +65,8 @@ def read_all_customer():
 def update_customer(customer: Customer):
     values = customer.dict()
     values_original = values.copy()
-    tmp = crud.myupdate(mymodels.Customers, values)
-    result = crud.myselect(mymodels.Customers, values_original.get("customer_id"))
+    tmp = crud.myupdate(mymodels.Customers, values) # 更新実行
+    result = crud.myselect(mymodels.Customers, values_original.get("customer_id")) # 更新後データ取得
     if not result:
         raise HTTPException(status_code=404, detail="Customer not found")
     result_obj = json.loads(result)
@@ -81,7 +81,7 @@ def delete_customer(customer_id: str = Query(...)):
     return {"customer_id": customer_id, "status": "deleted"}
 
 
-@app.get("/fetchtest")
+@app.get("/fetchtest") # 外部API呼び出しテスト（通信確認用？）
 def fetchtest():
     response = requests.get('https://jsonplaceholder.typicode.com/users')
     return response.json()
